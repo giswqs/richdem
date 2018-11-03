@@ -1,4 +1,6 @@
+from collections import defaultdict
 import setuptools
+from setuptools.command.build_ext import build_ext as _build_ext
 import glob
 import datetime
 import subprocess
@@ -7,32 +9,38 @@ import re
 RICHDEM_COMPILE_TIME = None
 RICHDEM_GIT_HASH     = None
 
-try:
-  fin = open('lib/richdem/version.txt','r').readlines()
-  fin = [x.strip().split("=") for x in fin]
-  for x in fin:
-    if x[0]=='hash':
-      RICHDEM_GIT_HASH = '"' + x[1] + '"'
-    elif x[0]=='date':
-      RICHDEM_COMPILE_TIME = '"' + x[1] + '"'
-except:
-  print("Warning! Could not find RichDEM version... falling back on git.")
-  pass
+#Compiler specific arguments
+BUILD_ARGS = {
+  'msvc': ['-std=c++11','-g','-fvisibility=hidden','-O3'],
+  'gcc':  ['-std=c++11','-g','-fvisibility=hidden','-O3','-Wno-unknown-pragmas'],
+  'unix': ['-std=c++11','-g','-fvisibility=hidden','-O3','-Wno-unknown-pragmas']
+}
+
+#Magic that hooks compiler specific arguments up with the compiler
+class build_ext_compiler_check(_build_ext):
+  def build_extensions(self):
+    compiler = self.compiler.compiler_type
+    print('COMPILER',compiler)
+    args     = BUILD_ARGS[compiler]
+    for ext in self.extensions:
+        ext.extra_compile_args = args
+    print('COMPILER ARGUMENTS',ext.extra_compile_args)
+    _build_ext.build_extensions(self)
 
 if RICHDEM_GIT_HASH is None:
   try:
     shash = subprocess.Popen(["git log --pretty=format:'%h' -n 1"], shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).stdout.readlines()[0].decode('utf8').strip()
     sdate = subprocess.Popen(["git log -1 --pretty='%ci'"], shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).stdout.readlines()[0].decode('utf8').strip()
     if re.match(r'^[0-9a-z]+$', shash) and re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*$', sdate):
-      RICHDEM_COMPILE_TIME = '"' + sdate + '"'
-      RICHDEM_GIT_HASH     = '"' + shash + '"'
+      RICHDEM_COMPILE_TIME = sdate
+      RICHDEM_GIT_HASH     = shash
   except:
     print("Warning! Could not find RichDEM version. Software will still work, but reproducibility will be compromised.")
     pass
 
 if RICHDEM_GIT_HASH is None:
-  RICHDEM_COMPILE_TIME = "\"Unknown\""
-  RICHDEM_GIT_HASH     = "\"Unknown\""
+  RICHDEM_COMPILE_TIME = 'Unknown'
+  RICHDEM_GIT_HASH     = 'Unknown'
 
 print("Using RichDEM hash={0}, time={1}".format(RICHDEM_GIT_HASH, RICHDEM_COMPILE_TIME))
 
@@ -40,14 +48,14 @@ ext_modules = [
   setuptools.Extension(
     "_richdem",
     glob.glob('src/*.cpp') + ['lib/richdem/common/random.cpp', 'lib/richdem/richdem.cpp'],
-    include_dirs       = ['lib/'],
-    language           = 'c++',
-    extra_compile_args = ['-std=c++11','-g','-fvisibility=hidden','-O3','-Wno-unknown-pragmas'], #Figure out if we can do '-flto'
-    define_macros      = [
+    include_dirs  = ['lib/'],
+    language      = 'c++',
+    define_macros = [
       ('DOCTEST_CONFIG_DISABLE', None                ),
-      ('RICHDEM_COMPILE_TIME',   RICHDEM_COMPILE_TIME),
-      ('RICHDEM_GIT_HASH',       RICHDEM_GIT_HASH    ),
-      ('RICHDEM_LOGGING',        None                )
+      ('RICHDEM_COMPILE_TIME',   '"\\"'+RICHDEM_COMPILE_TIME+'\\""'),
+      ('RICHDEM_GIT_HASH',       '"\\"'+RICHDEM_GIT_HASH+'\\""'    ),
+      ('RICHDEM_LOGGING',        None                ),
+      ('_USE_MATH_DEFINES',      None) #To ensure that `#include <cmath>` imports `M_PI` in MSVC
     ]
   )
 ]
@@ -64,7 +72,7 @@ It can flood or breach depressions, as well as calculate flow accumulation, slop
 #TODO: https://packaging.python.org/tutorials/distributing-packages/#configuring-your-project
 setuptools.setup(
   name              = 'richdem',
-  version           = '0.2.0',
+  version           = '0.3.4',
   description       = 'High-Performance Terrain Analysis',
   long_description  = long_description,
   url               = 'https://github.com/r-barnes/richdem',
@@ -81,10 +89,11 @@ setuptools.setup(
     'rd_info=richdem.cli:RdInfo',
     'rd_compare=richdem.cli:RdCompare'
   ]},
-  ext_modules       = ext_modules,
-  keywords          = 'GIS terrain hydrology geomorphology raster',
-  #packages         = find_packages(exclude=['contrib', 'docs', 'tests*']),
-  install_requires  = [
+  ext_modules      = ext_modules,
+  cmdclass         = {'build_ext': build_ext_compiler_check},
+  keywords         = 'GIS terrain hydrology geomorphology raster',
+  #packages        = find_packages(exclude=['contrib', 'docs', 'tests*']),
+  install_requires = [
     "numpy>=1.7,<2; python_version > '3.4' or python_version < '3.0'",
     "numpy>=1.7,<1.12; python_version < '3.4' and python_version > '3.0'"
   ],

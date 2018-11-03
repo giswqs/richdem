@@ -1,5 +1,9 @@
+*Switch Zhou 2016 to use nshift instead of nToI
 *Update internal citations in Parallel D8 and Parallel PF
 
+*Build for Conda:
+  * https://conda.io/docs/user-guide/tasks/build-packages/recipe.html
+  * https://conda-forge.org/
 
 *Implement Peckham flow metric
 *Add LICENSE notices to the top of source files
@@ -9,11 +13,7 @@ Output in D8 ArcGIS (Debasish Pal <debasish_pal@sutd.edu.sg>):
 Sorry Richard. I misunderstood. I would like to receive the format as in ArcGIS flow direction coding (1, 2, 4, 8, 16, 32, 64, 128 in clockwise direction)
 
 
-
-
-
 # Add two addtional methods.
-# MFD without diagonals (MFD-D4)
 # MFD with square root (Katy will send either a paper or derrivation to Richard)
 
 # change proportion ordering so that proportions are listed in math order of index

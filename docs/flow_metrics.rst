@@ -13,7 +13,10 @@ Below, the various flow metrics included in RichDEM are discussed.
 
 Wherever possible, algorithms are named according to the named according to
 their creators as well as by the name the authors gave the algorithm. For
-instance, `FM_Rho8` and `FM_FairfieldLeymarie` refer to the same function.
+instance, `FM_Rho8` and `FM_FairfieldLeymarieD8` refer to the same function.
+
+All flow metric functions are prefixed with !`FM_`.
+
 
 Note that, in some cases, it is difficult or impossible to include a flow metric
 because the authors have included insufficient detail in their manuscript and
@@ -22,16 +25,19 @@ absent or a "best effort" attempt has been made at implementation.
 
 
 
-Data Format
--------------------------------
+Flow Coordinate System
+--------------------------------
 
-All flow metric functions are prefixed with !`FM_`.
+Internally, RichDEM refers to flow directions using a neighbourhood that appears
+as follows::
 
-Flow metric functions return a flat array with !`width*height*N` elements, where
-`N` is the number of neighbours each cell has (recalling that RichDEM uses a
-regular grid). In this system, the flow from a given cell!`(x,y)` to its
-neighbour !`n` is stored at !`N*(y*width+x)+n`. There is not yet a convenience
-wrapper around these arrays (TODO).s
+    234
+    105
+    876
+
+
+Neighbouring cells are accessed by looping through the indices 1 through 8
+(inclusive) of the `dx[]` and `dy[]` arrays.
 
 
 
@@ -94,7 +100,43 @@ This is a convergent, deterministic flow method.
 ================= ==============================
 Language          Command
 ================= ==============================
-C++               `richdem::FM_OCallaghan()` or `richdem::FM_D8()`
+C++               `richdem::FM_OCallaghanD8()` or `richdem::FM_D8()`
+================= ==============================
+
+
+
+D4 (O'Callaghan and Mark, 1984)
+-------------------------------
+
+    O'Callaghan, J.F., Mark, D.M., 1984. The Extraction of Drainage Networks from Digital Elevation Data. Computer vision, graphics, and image processing 28, 323--344.
+
+The D4 method assigns flow from a focal cell to one and only one of its 4 north,
+south, east, or west neighbouring cells. The chosen neighbour is the one
+accessed via the steepest slope. When such a neighbour does not exist, no flow
+direction is assigned. When two or more neighbours have the same slope, the
+chosen neighbour is the first one considered by the algorithm.
+
+This is a convergent, deterministic flow method.
+
+.. plot::
+    :width: 800pt
+    :include-source:
+    :context: close-figs
+    :outname: flow_metric_d4
+
+    import richdem as rd
+    import numpy as np
+
+    dem = rd.rdarray(np.load('imgs/beauford.npz')['beauford'], no_data=-9999)
+
+    rd.FillDepressions(dem, epsilon=True, in_place=True)
+    accum_d4 = rd.FlowAccumulation(dem, method='D4')
+    d8_fig = rd.rdShow(accum_d4, zxmin=450, zxmax=550, zymin=550, zymax=450, figsize=(8,5.5), axes=False, cmap='jet')
+
+================= ==============================
+Language          Command
+================= ==============================
+C++               `richdem::FM_OCallaghanD4()` or `richdem::FM_D4()`
 ================= ==============================
 
 
@@ -108,8 +150,6 @@ The Rho8 method apportions flow from a focal cell to one and only one of its 8
 neighbouring cells. To do so, the slope to each neighbouring cell is calculated
 and a neighbouring cell is selected randomly with a probability weighted by the
 slope.
-
-There is also a *Rho4* method which RichDEM does not implement. (TODO)
 
 This is a convergent, stochastic flow method.
 
@@ -128,7 +168,39 @@ This is a convergent, stochastic flow method.
 ================= ==============================
 Language          Command
 ================= ==============================
-C++               `richdem::FM_Rho8()` or `richdem::FM_FairfieldLeymarie()`
+C++               `richdem::FM_Rho8()` or `richdem::FM_FairfieldLeymarieD8()`
+================= ==============================
+
+
+
+Rho4 (Fairfield and Leymarie, 1991)
+-----------------------------------
+
+    Fairfield, J., Leymarie, P., 1991. Drainage networks from grid digital elevation models. Water resources research 27, 709–717.
+
+The Rho4 method apportions flow from a focal cell to one and only one of its 8
+neighbouring cells. To do so, the slope to each neighbouring cell is calculated
+and a neighbouring cell is selected randomly with a probability weighted by the
+slope.
+
+This is a convergent, stochastic flow method.
+
+.. image:: imgs/fm_rho8_comp.png
+    :width: 100%
+
+.. plot::
+    :width: 800pt
+    :include-source:
+    :context: close-figs
+    :outname: flow_metric_rho4
+
+    accum_rho4 = rd.FlowAccumulation(dem, method='Rho4')
+    rd.rdShow(accum_rho4, zxmin=450, zxmax=550, zymin=550, zymax=450, figsize=(8,5.5), axes=False, cmap='jet', vmin=d8_fig['vmin'], vmax=d8_fig['vmax'])
+
+================= ==============================
+Language          Command
+================= ==============================
+C++               `richdem::FM_Rho4()` or `richdem::FM_FairfieldLeymarieD4()`
 ================= ==============================
 
 
@@ -287,7 +359,9 @@ Side-by-Side Comparisons of Flow Metrics
 
     metrics = (
       ('D8',       accum_d8      ),
+      ('D4',       accum_d4      ),
       ('Rho8',     accum_rho8    ),
+      ('Rho4',     accum_rho4    ),
       ('Dinf',     accum_dinf    ),
       ('Quinn',    accum_quinn   ),
       ('Holmgren', accum_holmgren),
@@ -296,12 +370,12 @@ Side-by-Side Comparisons of Flow Metrics
 
     subr = lambda x: x[450:550,450:550]
 
-    fig, axs = plt.subplots(nrows=2, ncols=3)
+    fig, axs = plt.subplots(nrows=2, ncols=4)
 
     #Flatten list
     axs = [item for sublist in axs for item in sublist]
 
-    vmin, vmax = np.nanpercentile(subr(accum_d8), [2, 98])
+    vmin, vmax = np.nanpercentile(subr(accum_d4), [2, 98])
 
     for i, met in enumerate(metrics):
       axs[i].imshow(subr(met[1]), vmin=vmin, vmax=vmax, cmap='jet')
@@ -321,3 +395,34 @@ nonetheless, they are different:
 
     quinn_freeman_diff = accum_quinn - accum_freeman
     rd.rdShow(quinn_freeman_diff, figsize=(8,5.5), axes=False, cmap='jet', ignore_colours=[0])
+
+
+
+Accessing Flow Proportions Directly
+===================================
+
+In higher-level languages the foregoing flow proportions can be access via the
+flow proportions command, such as follows:
+
+.. code-block:: python
+
+    bprops = rd.FlowProportions(dem=beau, method='D8')
+
+This command returns a matrix with the same width and height as the input, but
+an extra dimension which assigns each `(x,y)` cell 9 single-precision floating-
+point values.
+
+The zeroth of these values is used for storing status information about the cell
+as a whole. If the 0th value of the area is `0` then the cell produces flow; if
+it is `-1`, then the cell produces no flow; if it is `-2`, then the cell is a
+NoData cell. The following eight values indicate the proportion of the cells
+flow directed to the neighbour corresponding to the index of that value where
+the neighbours are defined as in `Flow Coordinate System`_.
+
+For instance, the values::
+
+    0 0.25 0.25 0.25 0.25 0 0 0 0
+
+direct 25% of a cell's flow to the northwest, north, northeast, and east.
+
+These values can be manipulated and used to generate custom flow accumulations.

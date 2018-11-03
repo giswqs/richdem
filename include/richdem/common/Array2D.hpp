@@ -8,6 +8,7 @@
 #define _richdem_array_2d_hpp_
 
 #include "gdal.hpp"
+#include <array>
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -18,9 +19,11 @@
 #include <stdexcept>
 #include <limits>
 #include <ctime>         //Used for timestamping output files
+#include <cmath>
 #include <unordered_set> //For printStamp
 #include <stdexcept>
 #include <map>
+#include "richdem/common/Array3D.hpp"
 #include "richdem/common/logger.hpp"
 #include "richdem/common/version.hpp"
 #include "richdem/common/constants.hpp"
@@ -33,6 +36,8 @@
 #endif
 
 namespace richdem {
+
+template<typename> class Array3D;
 
 std::map<std::string, std::string> ProcessMetadata(char **metadata){
   std::map<std::string, std::string> ret;
@@ -98,6 +103,7 @@ class Array2D {
 
  private:
   template<typename> friend class Array2D;
+  template<typename> friend class Array3D;
 
   std::array<int, 9> _nshift;       ///< Offset to neighbouring cells;
 
@@ -303,8 +309,6 @@ class Array2D {
     _nshift     = {{0,-1,-width-1,-width,-width+1,1,width+1,width,width-1}};
   }
 
-
-
   /**
     @brief Create a raster with the same properties and dimensions as another
            raster. No data is copied between the two.
@@ -314,6 +318,26 @@ class Array2D {
   */
   template<class U>
   Array2D(const Array2D<U> &other, const T& val=T()) : Array2D() {
+    view_width         = other.view_width;
+    view_height        = other.view_height;
+    view_xoff          = other.view_xoff;
+    view_yoff          = other.view_yoff;
+    geotransform       = other.geotransform;
+    metadata           = other.metadata;
+    projection         = other.projection;
+    basename           = other.basename;
+    resize(other.width(), other.height(), val);
+  }
+
+  /**
+    @brief Create a raster with the same properties and dimensions as another
+           raster. No data is copied between the two.
+
+    @param[in] other   Raster whose properties and dimensions should be copied
+    @param[in] val     Initial value of all the raster's cells.
+  */
+  template<class U>
+  Array2D(const Array3D<U> &other, const T& val=T()) : Array2D() {
     view_width         = other.view_width;
     view_height        = other.view_height;
     view_xoff          = other.view_xoff;
@@ -377,7 +401,7 @@ class Array2D {
 
       GDALRasterBand *band = fin->GetRasterBand(1);
 
-        resize(view_width,view_height);
+      resize(view_width,view_height);
       auto temp = band->RasterIO( GF_Read, view_xoff, view_yoff, view_width, view_height, data.data(), view_width, view_height, myGDALType(), 0, 0 );
         if(temp!=CE_None)
           throw std::runtime_error("An error occured while trying to read '"+filename+"' into RAM with GDAL.");

@@ -4,17 +4,23 @@
 #include "richdem/common/constants.hpp"
 #include "richdem/common/logger.hpp"
 #include "richdem/common/Array2D.hpp"
+#include "richdem/common/Array3D.hpp"
 #include "richdem/common/ProgressBar.hpp"
 
 namespace richdem {
 
 template<class E>
-std::vector<float> FM_Holmgren(const Array2D<E> &elevations, const double xparam){
+void FM_Holmgren(
+  const Array2D<E> &elevations,
+  Array3D<float> &props,
+  const double xparam
+){
   RDLOG_ALG_NAME<<"Holmgren (1994) Flow Accumulation (aka MFD, MD8)";
   RDLOG_CITATION<<"Holmgren, P., 1994. Multiple flow direction algorithms for runoff modelling in grid based elevation models: an empirical evaluation. Hydrological processes 8, 327–334.";
   RDLOG_CONFIG<<"x = "<<xparam;
 
-  std::vector<float> props(9*elevations.size(),NO_FLOW_GEN);
+  props.setAll(NO_FLOW_GEN);
+  props.setNoData(NO_DATA_GEN);
 
   constexpr double L1   = 0.5;
   constexpr double L2   = 0.354; //TODO: More decimal places
@@ -24,12 +30,19 @@ std::vector<float> FM_Holmgren(const Array2D<E> &elevations, const double xparam
   progress.start(elevations.size());
 
   #pragma omp parallel for collapse(2)
-  for(int y=1;y<elevations.height()-1;y++)
-  for(int x=1;x<elevations.width()-1;x++){
+  for(int y=0;y<elevations.height();y++)
+  for(int x=0;x<elevations.width();x++){
     ++progress;
-    const E e = elevations(x,y);
 
-    const int ci = elevations.xyToI(x,y);
+    if(elevations.isNoData(x,y)){
+      props(x,y,0) = NO_DATA_GEN;
+      continue;
+    }
+
+    if(elevations.isEdgeCell(x,y))
+      continue;
+    
+    const E e = elevations(x,y);
 
     double C = 0;
 
@@ -48,27 +61,25 @@ std::vector<float> FM_Holmgren(const Array2D<E> &elevations, const double xparam
         const double rise = e-ne;
         const double run  = dr[n];
         const double grad = rise/run;
-        props.at(9*ci+n)  = std::pow(grad * L[n],xparam);
-        C                += props.at(9*ci+n);
+        props(x,y,n)      = std::pow(grad * L[n],xparam);
+        C                += props(x,y,n);
       }
     }
 
     if(C>0){
-      props.at(9*ci+0) = HAS_FLOW_GEN;
+      props(x,y,0) = HAS_FLOW_GEN;
 
       C = 1/C;
 
       for(int n=1;n<=8;n++){
-        if(props[9*ci+n]>0)
-          props.at(9*ci+n) *= C;
+        if(props(x,y,n)>0)
+          props(x,y,n) *= C;
         else
-          props.at(9*ci+n) = 0;
+          props(x,y,n) = 0;
       }
     }
   }
   progress.stop();
-
-  return props;
 }
 
 }

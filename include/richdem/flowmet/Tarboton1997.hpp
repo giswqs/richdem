@@ -4,16 +4,23 @@
 #include "richdem/common/constants.hpp"
 #include "richdem/common/logger.hpp"
 #include "richdem/common/Array2D.hpp"
+#include "richdem/common/Array3D.hpp"
 #include "richdem/common/ProgressBar.hpp"
+
+#include <cmath>
 
 namespace richdem {
 
 template<class elev_t>
-std::vector<float> FM_Tarboton(const Array2D<elev_t> &elevations){
+void FM_Tarboton(
+  const Array2D<elev_t> &elevations,
+  Array3D<float> &props
+){
   RDLOG_ALG_NAME<<"Tarboton (1997) Flow Accumulation (aka D-Infinity, D∞)";
   RDLOG_CITATION<<"Tarboton, D.G., 1997. A new method for the determination of flow directions and upslope areas in grid digital elevation models. Water resources research 33, 309–319.";
 
-  std::vector<float> props(9*elevations.size(),NO_FLOW_GEN);
+  props.setAll(NO_FLOW_GEN);
+  props.setNoData(NO_DATA_GEN);
 
   //TODO: Assumes that the width and height of grid cells are equal and scaled
   //to 1.
@@ -49,11 +56,17 @@ std::vector<float> FM_Tarboton(const Array2D<elev_t> &elevations){
   progress.start(elevations.size());
 
   #pragma omp parallel for collapse(2)
-  for(int y=1;y<elevations.height()-1;y++)
-  for(int x=1;x<elevations.width()-1;x++){
+  for(int y=0;y<elevations.height();y++)
+  for(int x=0;x<elevations.width();x++){
     ++progress;
 
-    const int ci = elevations.xyToI(x,y);
+    if(elevations.isNoData(x,y)){
+      props(x,y,0) = NO_DATA_GEN;
+      continue;
+    }
+
+    if(elevations.isEdgeCell(x,y))
+      continue;
 
     int8_t nmax = -1;
     double smax = 0;
@@ -103,7 +116,7 @@ std::vector<float> FM_Tarboton(const Array2D<elev_t> &elevations){
     if(nmax==-1)
       continue;
 
-    props.at(9*ci+0) = HAS_FLOW_GEN;
+    props(x,y,0) = HAS_FLOW_GEN;
 
     if(af[nmax]==1 && rmax==0)
       rmax = dang;
@@ -119,22 +132,20 @@ std::vector<float> FM_Tarboton(const Array2D<elev_t> &elevations){
     //   rg = (af[nmax]*rmax+ac[nmax]*M_PI/2);
 
     if(rmax==0){
-      props.at(9*ci+nmax) = 1;
+      props(x,y,nmax) = 1;
     } else if(rmax==dang){
-      props.at(9*ci+nwrap(nmax+1)) = 1;
+      props(x,y,nwrap(nmax+1)) = 1;
     } else {
-      props.at(9*ci+nmax)          = rmax/(M_PI/4.);
-      props.at(9*ci+nwrap(nmax+1)) = 1-rmax/(M_PI/4.);      
+      props(x,y,nmax)          = rmax/(M_PI/4.);
+      props(x,y,nwrap(nmax+1)) = 1-rmax/(M_PI/4.);      
     }
   }
   progress.stop();
-
-  return props;
 }
 
 template<class E>
-std::vector<float> FM_Dinfinity(const Array2D<E> &elevations){
-  return FM_Tarboton(elevations);
+void FM_Dinfinity(const Array2D<E> &elevations, Array3D<float> &props){
+  FM_Tarboton(elevations, props);
 }
 
 }

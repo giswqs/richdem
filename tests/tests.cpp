@@ -168,14 +168,14 @@ TEST_CASE("Checking depression filling") {
 
   SUBCASE("PriorityFlood_Original"){
     auto elevation = elevation_orig;
-    PriorityFlood_Original(elevation);
+    PriorityFlood_Original<Topology::D8>(elevation);
     Array2D<int> manually_flooded("depressions/testdem1.all.out");
     REQUIRE(elevation==manually_flooded);
   }
 
   SUBCASE("PriorityFlood_Barnes2014"){
     auto elevation = elevation_orig;
-    PriorityFlood_Barnes2014(elevation);
+    PriorityFlood_Barnes2014<Topology::D8>(elevation);
     Array2D<int> manually_flooded("depressions/testdem1.all.out");
     REQUIRE(elevation==manually_flooded);
   }
@@ -196,14 +196,14 @@ TEST_CASE("Checking depression filling") {
 
   SUBCASE("FillDepressions"){
     auto elevation = elevation_orig;
-    FillDepressions(elevation);
+    FillDepressions<Topology::D8>(elevation);
     Array2D<int> manually_flooded("depressions/testdem1.all.out");
     REQUIRE(elevation==manually_flooded);
   }  
 
   SUBCASE("PriorityFlood_Barnes2014_max_dep"){
     auto elevation = elevation_orig;
-    PriorityFlood_Barnes2014_max_dep(elevation,1);
+    PriorityFlood_Barnes2014_max_dep<Topology::D8>(elevation,1);
     elevation.printAll();
     Array2D<int> manually_flooded("depressions/testdem1.1.out");
     REQUIRE(elevation==manually_flooded);
@@ -211,7 +211,7 @@ TEST_CASE("Checking depression filling") {
 
   SUBCASE("PriorityFlood_Barnes2014_max_dep"){
     auto elevation = elevation_orig;
-    PriorityFlood_Barnes2014_max_dep(elevation,2);
+    PriorityFlood_Barnes2014_max_dep<Topology::D8>(elevation,2);
     elevation.printAll();
     Array2D<int> manually_flooded("depressions/testdem1.2.out");
     REQUIRE(elevation==manually_flooded);
@@ -228,7 +228,7 @@ TEST_CASE("Checking depression breaching") {
 
   SUBCASE("Lindsay2016 Complete Breaching"){
     auto elevation = elevation_orig;
-    CompleteBreaching_Lindsay2016(elevation);
+    CompleteBreaching_Lindsay2016<Topology::D8>(elevation);
     elevation.printAll();
     Array2D<int> manually_flooded("breaching/testdem1.complete.out");
     REQUIRE(elevation==manually_flooded);
@@ -289,13 +289,16 @@ TEST_CASE("Checking flow accumulation") {
   Array2D<float> beauford("beauford/beauford.tif");
   PriorityFlood_Wei2018(beauford);
 
-
-  SUBCASE("FA_Tarboton")          {Array2D<double> accum(beauford); FA_Tarboton          (beauford, accum); }
-  SUBCASE("FA_Holmgren")          {Array2D<double> accum(beauford); FA_Holmgren          (beauford, accum, 0.8); }
-  SUBCASE("FA_Quinn")             {Array2D<double> accum(beauford); FA_Quinn             (beauford, accum); }
-  SUBCASE("FA_Freeman")           {Array2D<double> accum(beauford); FA_Freeman           (beauford, accum, 0.8); }
-  SUBCASE("FA_FairfieldLeymarie") {Array2D<double> accum(beauford); FA_FairfieldLeymarie (beauford, accum); }
-  SUBCASE("FA_Rho8")              {Array2D<double> accum(beauford); FA_Rho8              (beauford, accum); }
-  SUBCASE("FA_D8")                {Array2D<double> accum(beauford); FA_D8                (beauford, accum); }
+  SUBCASE("FA_Tarboton")            {Array2D<double> accum(beauford); FA_Tarboton            (beauford, accum); }
+  SUBCASE("FA_Dinfinity")           {Array2D<double> accum(beauford); FA_Dinfinity           (beauford, accum); }
+  SUBCASE("FA_Holmgren")            {Array2D<double> accum(beauford); FA_Holmgren            (beauford, accum, 0.8); }
+  SUBCASE("FA_Quinn")               {Array2D<double> accum(beauford); FA_Quinn               (beauford, accum); }
+  SUBCASE("FA_Freeman")             {Array2D<double> accum(beauford); FA_Freeman             (beauford, accum, 0.8); }
+  SUBCASE("FA_FairfieldLeymarieD8") {Array2D<double> accum(beauford); FA_FairfieldLeymarieD8 (beauford, accum); }
+  SUBCASE("FA_FairfieldLeymarieD4") {Array2D<double> accum(beauford); FA_FairfieldLeymarieD4 (beauford, accum); }
+  SUBCASE("FA_Rho8")                {Array2D<double> accum(beauford); FA_Rho8                (beauford, accum); }
+  SUBCASE("FA_Rho4")                {Array2D<double> accum(beauford); FA_Rho4                (beauford, accum); }
+  SUBCASE("FA_D8")                  {Array2D<double> accum(beauford); FA_D8                  (beauford, accum); }
+  SUBCASE("FA_D4")                  {Array2D<double> accum(beauford); FA_D4                  (beauford, accum); }
 
 }
