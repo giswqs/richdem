@@ -11,16 +11,22 @@ except ImportError as e:
     print("COULD NOT LOAD RichDEM ENGINE! NOTHING WILL WORK!")
     raise e
 
-from _richdem import depression_hierarchy, convert_arc_flowdirs_to_richdem_d8, flow_accumulation_from_d8
+from _richdem import (
+    depression_hierarchy,
+    convert_arc_flowdirs_to_richdem_d8,
+    flow_accumulation_from_d8,
+)
 
 __version__ = _get_version("richdem")
 
 try:
     import rasterio as rio
+
     GDAL_AVAILABLE = True
 except ModuleNotFoundError:
     try:
         from osgeo import gdal
+
         gdal.UseExceptions()
         GDAL_AVAILABLE = True
     except Exception:
@@ -28,8 +34,13 @@ except ModuleNotFoundError:
 
 STANDARD_GEOTRANSFORM: Final[np.ndarray] = np.array([0, 1, 0, 0, 0, -1])
 
-msg_error_no_data: Final[str] = "The source data did not have a NoData value. Please use the no_data argument to specify one. If should not be equal to any of the actual data values. If you are using all possible data values, then the situation is pretty hopeless - sorry."
-msg_error_dtype: Final[str] = "This datatype is not supported. Please file a bug report on RichDEM."
+msg_error_no_data: Final[str] = (
+    "The source data did not have a NoData value. Please use the no_data argument to specify one. If should not be equal to any of the actual data values. If you are using all possible data values, then the situation is pretty hopeless - sorry."
+)
+msg_error_dtype: Final[str] = (
+    "This datatype is not supported. Please file a bug report on RichDEM."
+)
+
 
 def _RichDEMVersion() -> str:
     return "RichDEM (Python {pyver}) (hash={hash}, hashdate={compdate})".format(
@@ -44,7 +55,9 @@ def _AddAnalysis(rda: "rdarray", analysis: str) -> None:
         raise Exception("An rdarray or rd3array is required!")
 
     metastr = "\n{nowdate} | {verstr} | {analysis}".format(
-        nowdate=datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f UTC"),
+        nowdate=datetime.datetime.now(datetime.timezone.utc).strftime(
+            "%Y-%m-%d %H:%M:%S.%f UTC"
+        ),
         verstr=_RichDEMVersion(),
         analysis=analysis,
     )
@@ -162,7 +175,14 @@ def rdShow(
 
 class rdarray(np.ndarray):
     def __new__(
-        cls, array, meta_obj=None, no_data: Optional[Union[float, int]]=None, dtype=None, order=None, geotransform: Optional[Iterable[float]]=None, **kwargs: Any
+        cls,
+        array,
+        meta_obj=None,
+        no_data: Optional[Union[float, int]] = None,
+        dtype=None,
+        order=None,
+        geotransform: Optional[Iterable[float]] = None,
+        **kwargs: Any,
     ) -> "rdarray":
         obj = np.asarray(array, dtype=dtype, order=order).view(cls)
 
@@ -232,7 +252,9 @@ class rdarray(np.ndarray):
 
 
 class rd3array(np.ndarray):
-    def __new__(cls, array, meta_obj=None, no_data=None, order=None, **kwargs: Any) -> "rd3array":
+    def __new__(
+        cls, array, meta_obj=None, no_data=None, order=None, **kwargs: Any
+    ) -> "rd3array":
         obj = np.asarray(array, dtype=np.float32, order=order).view(cls)
 
         if meta_obj is not None:
@@ -286,6 +308,7 @@ class rd3array(np.ndarray):
         # print("IS IT IN",("PROCESSING_HISTORY" in wrapped.metadata))
         # self.metadata += "\n"+wrapped.metadata["PROCESSING_HISTORY"].replace("\n","\t\n")
 
+
 def load_gdal_using_rasterio(filename: str, no_data: Optional[float] = None) -> rdarray:
     allowed_types = {
         np.byte,
@@ -320,6 +343,7 @@ def load_gdal_using_rasterio(filename: str, no_data: Optional[float] = None) -> 
             srcdata.metadata[k] = v
 
     return srcdata
+
 
 def load_gdal_using_gdal(filename: str, no_data: Optional[float] = None) -> rdarray:
     allowed_types = {
@@ -383,24 +407,22 @@ def LoadGDAL(filename: str, no_data: Optional[float] = None) -> rdarray:
     except NameError:
         srcdata = load_gdal_using_gdal(filename=filename, no_data=no_data)
     finally:
-        _AddAnalysis(
-            srcdata, f"LoadGDAL(filename={filename}, no_data={no_data})"
-        )
+        _AddAnalysis(srcdata, f"LoadGDAL(filename={filename}, no_data={no_data})")
 
         return srcdata
 
 
 def save_gdal_using_rasterio(filename: str, rda: rdarray) -> None:
     with rio.open(
-            filename,
-            "w",
-            width=rda.shape[1],
-            height=rda.shape[0],
-            count=1,
-            dtype=np.float32,
-            crs=rda.projection,
-            transform=rda.geotransform,
-            nodata=rda.no_data
+        filename,
+        "w",
+        width=rda.shape[1],
+        height=rda.shape[0],
+        count=1,
+        dtype=np.float32,
+        crs=rda.projection,
+        transform=rda.geotransform,
+        nodata=rda.no_data,
     ) as f:
         metadata = {str(x): str(y) for x, y in rda.metadata.items()}
         f.write(np.array(rda), 1)
@@ -449,7 +471,9 @@ def SaveGDAL(filename: str, rda: rdarray) -> None:
         save_gdal_using_gdal(filename, rda)
 
 
-def FillDepressions(dem: rdarray, epsilon: bool = False, in_place: bool = False, topology: str = "D8") -> Optional[rdarray]:
+def FillDepressions(
+    dem: rdarray, epsilon: bool = False, in_place: bool = False, topology: str = "D8"
+) -> Optional[rdarray]:
     """Fills all depressions in a DEM.
 
     Args:
@@ -493,7 +517,9 @@ def FillDepressions(dem: rdarray, epsilon: bool = False, in_place: bool = False,
         return dem
 
 
-def BreachDepressions(dem: rdarray, in_place: bool = False, topology: str = "D8") -> Optional[rdarray]:
+def BreachDepressions(
+    dem: rdarray, in_place: bool = False, topology: str = "D8"
+) -> Optional[rdarray]:
     """Breaches all depressions in a DEM.
 
     Args:
@@ -558,7 +584,13 @@ def ResolveFlats(dem: rdarray, in_place: bool = False) -> Optional[rdarray]:
         return dem
 
 
-def FlowAccumulation(dem: rdarray, method: Optional[str] = None, exponent: Optional[float] = None, weights: Optional[rdarray] = None, in_place: bool = False) -> rdarray:
+def FlowAccumulation(
+    dem: rdarray,
+    method: Optional[str] = None,
+    exponent: Optional[float] = None,
+    weights: Optional[rdarray] = None,
+    in_place: bool = False,
+) -> rdarray:
     """Calculates flow accumulation. A variety of methods are available.
 
     Args:
@@ -652,9 +684,7 @@ def FlowAccumulation(dem: rdarray, method: Optional[str] = None, exponent: Optio
         facc_methods[method](dem.wrap(), accumw)
     elif method in facc_methods_exponent:
         if exponent is None:
-            raise Exception(
-                f'FlowAccumulation method "{method}" requires an exponent!'
-            )
+            raise Exception(f'FlowAccumulation method "{method}" requires an exponent!')
         facc_methods_exponent[method](dem.wrap(), accumw, exponent)
     else:
         raise Exception(
@@ -667,7 +697,9 @@ def FlowAccumulation(dem: rdarray, method: Optional[str] = None, exponent: Optio
     return accum
 
 
-def FlowAccumFromProps(props: rdarray, weights: Optional[rdarray] = None, in_place: bool = False) -> rdarray:
+def FlowAccumFromProps(
+    props: rdarray, weights: Optional[rdarray] = None, in_place: bool = False
+) -> rdarray:
     """Calculates flow accumulation from flow proportions.
 
     Args:
@@ -718,7 +750,9 @@ def FlowAccumFromProps(props: rdarray, weights: Optional[rdarray] = None, in_pla
     return accum
 
 
-def FlowProportions(dem: rdarray, method: Optional[str] = None, exponent: Optional[float] = None) -> rdarray:
+def FlowProportions(
+    dem: rdarray, method: Optional[str] = None, exponent: Optional[float] = None
+) -> rdarray:
     """Calculates flow proportions. A variety of methods are available.
 
     Args:
@@ -854,16 +888,14 @@ def TerrainAttribute(dem: rdarray, attrib: str, zscale: float = 1.0) -> rdarray:
     )
     resultw = result.wrap()
 
-    _AddAnalysis(
-        result,
-        f"TerrainAttribute(dem, attrib={attrib}, zscale={zscale})"
-    )
+    _AddAnalysis(result, f"TerrainAttribute(dem, attrib={attrib}, zscale={zscale})")
 
     terrain_attribs[attrib](dem.wrap(), resultw, zscale)
 
     result.copyFromWrapped(resultw)
 
     return result
+
 
 def generate_perlin_terrain(size: int, seed: int) -> rdarray:
     """Generates random terrain based on Perlin noise
@@ -883,7 +915,10 @@ def generate_perlin_terrain(size: int, seed: int) -> rdarray:
     dem.copyFromWrapped(demw)
     return dem
 
-def get_depression_hierarchy(dem: rdarray, labels: rdarray) -> Tuple[List[depression_hierarchy.Depression], rdarray]:
+
+def get_depression_hierarchy(
+    dem: rdarray, labels: rdarray
+) -> Tuple[List[depression_hierarchy.Depression], rdarray]:
     """Fills all depressions in a DEM.
 
     Args:
@@ -907,14 +942,23 @@ def get_depression_hierarchy(dem: rdarray, labels: rdarray) -> Tuple[List[depres
     demw = dem.wrap()
     labelsw = labels.wrap()
 
-    flowdirs = rdarray(_richdem.NO_FLOW * np.ones(dem.shape, dtype=np.int8), no_data=-9999, geotransform=STANDARD_GEOTRANSFORM)
+    flowdirs = rdarray(
+        _richdem.NO_FLOW * np.ones(dem.shape, dtype=np.int8),
+        no_data=-9999,
+        geotransform=STANDARD_GEOTRANSFORM,
+    )
     flowdirsw = flowdirs.wrap()
 
     dhret = depression_hierarchy.get_depression_hierarchy(demw, labelsw, flowdirsw)
 
     return dhret, flowdirs
 
-def get_new_depression_hierarchy_labels(shape: Tuple[int, int], no_data: float = -9999, geotransform: Optional[np.ndarray] = None) -> rdarray:
+
+def get_new_depression_hierarchy_labels(
+    shape: Tuple[int, int],
+    no_data: float = -9999,
+    geotransform: Optional[np.ndarray] = None,
+) -> rdarray:
     """Get a new labels array with for use with the depression hierarchy
 
     Will have ocean on the borders and NO_DEP everywhere else.
@@ -927,14 +971,23 @@ def get_new_depression_hierarchy_labels(shape: Tuple[int, int], no_data: float =
         The new labels array
     """
     dhlret = rdarray(
-      depression_hierarchy.OCEAN * np.ones(shape, dtype = np.uint32),
-      no_data=no_data,
-      geotransform=geotransform if geotransform is not None else STANDARD_GEOTRANSFORM
+        depression_hierarchy.OCEAN * np.ones(shape, dtype=np.uint32),
+        no_data=no_data,
+        geotransform=geotransform
+        if geotransform is not None
+        else STANDARD_GEOTRANSFORM,
     )
-    dhlret[1:-1,1:-1] = depression_hierarchy.NO_DEP
+    dhlret[1:-1, 1:-1] = depression_hierarchy.NO_DEP
     return dhlret
 
-def fill_spill_merge(dem: rdarray, labels: rdarray, flowdirs: rdarray, deps: List[depression_hierarchy.Depression], wtd: rdarray) -> None:
+
+def fill_spill_merge(
+    dem: rdarray,
+    labels: rdarray,
+    flowdirs: rdarray,
+    deps: List[depression_hierarchy.Depression],
+    wtd: rdarray,
+) -> None:
     """
     This function routes surface water into pit cells and then distributes
     it so that it fills the bottoms of depressions, taking account of overflows.
@@ -957,13 +1010,21 @@ def fill_spill_merge(dem: rdarray, labels: rdarray, flowdirs: rdarray, deps: Lis
             saturated a cell is or how much standing surface water it has.
     """
     if type(dem) is not rdarray:
-        raise Exception("A richdem.rdarray or numpy.ndarray is required for the argument `dem`!")
+        raise Exception(
+            "A richdem.rdarray or numpy.ndarray is required for the argument `dem`!"
+        )
     if type(labels) is not rdarray:
-        raise Exception("A richdem.rdarray or numpy.ndarray is required for the argument `labels`!")
+        raise Exception(
+            "A richdem.rdarray or numpy.ndarray is required for the argument `labels`!"
+        )
     if type(flowdirs) is not rdarray:
-        raise Exception("A richdem.rdarray or numpy.ndarray is required for the argument `flowdirs`!")
+        raise Exception(
+            "A richdem.rdarray or numpy.ndarray is required for the argument `flowdirs`!"
+        )
     if type(wtd) is not rdarray:
-        raise Exception("A richdem.rdarray or numpy.ndarray is required for the argument `wtd`!")
+        raise Exception(
+            "A richdem.rdarray or numpy.ndarray is required for the argument `wtd`!"
+        )
 
     demw = dem.wrap()
     labelsw = labels.wrap()
@@ -976,8 +1037,7 @@ def fill_spill_merge(dem: rdarray, labels: rdarray, flowdirs: rdarray, deps: Lis
 __all__ = (
     "BreachDepressions",
     "convert_arc_flowdirs_to_richdem_d8",
-    "fill_spill_merge"
-    "FillDepressions",
+    "fill_spill_mergeFillDepressions",
     "flow_accumulation_from_d8",
     "FlowAccumFromProps",
     "FlowAccumulation",
