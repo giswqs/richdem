@@ -1,4 +1,5 @@
-recursive-include lib *
+recursive-include lib/richdem/include *.h *.hpp
+recursive-include lib/richdem/src *.cpp *.h *.hpp
 recursive-include src *.cpp *.hpp
 include pyproject.toml
 include LICENSE.txt
