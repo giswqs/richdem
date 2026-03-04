@@ -17,7 +17,7 @@ from _richdem import (
     flow_accumulation_from_d8,
 )
 
-__version__ = _get_version("richdem")
+__version__ = _get_version("richdem2")
 
 try:
     import rasterio as rio
@@ -44,7 +44,7 @@ msg_error_dtype: Final[str] = (
 
 def _RichDEMVersion() -> str:
     return "RichDEM (Python {pyver}) (hash={hash}, hashdate={compdate})".format(
-        pyver=_get_version("richdem"),
+        pyver=_get_version("richdem2"),
         hash=_richdem.rdHash(),
         compdate=_richdem.rdCompileTime(),
     )

@@ -135,7 +135,7 @@ commands into a cell and running it.
 
 Get the package with:
 
-    $ pip install richdem
+    $ pip install richdem2
 
 And use:
 
@@ -154,7 +154,7 @@ As A Command-line Tool
 
 To get the command-line tools, install the Python package with:
 
-    pip3 install richdem
+    pip3 install richdem2
 
 The command-line tools are all named `rd_*`, so typing `rd_` on your command-
 line and hitting tab a few times should give you the full list of what's

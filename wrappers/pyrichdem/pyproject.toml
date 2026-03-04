@@ -3,7 +3,7 @@ requires = ["setuptools>=69", "pybind11>=2.12", "numpy>=2.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "richdem"
+name = "richdem2"
 version = "2.2.0"
 description = "High-Performance Terrain Analysis"
 readme = "README.md"
@@ -41,9 +41,9 @@ gdal = ["rasterio"]
 test = ["pytest"]
 
 [project.urls]
-Homepage = "https://github.com/r-barnes/richdem"
-Repository = "https://github.com/r-barnes/richdem"
-Issues = "https://github.com/r-barnes/richdem/issues"
+Homepage = "https://github.com/giswqs/richdem"
+Repository = "https://github.com/giswqs/richdem"
+Issues = "https://github.com/giswqs/richdem/issues"
 
 [project.scripts]
 rd_depression_filling = "richdem.cli:DepressionFilling"
