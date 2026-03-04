@@ -12,23 +12,50 @@
 #include <vector>
 #include <tuple>
 
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
+
 namespace radix_heap {
 namespace internal {
+
+#ifdef _MSC_VER
+inline size_t clz32(uint32_t x) {
+  unsigned long index;
+  _BitScanReverse(&index, x);
+  return 31 - index;
+}
+
+inline size_t clz64(uint64_t x) {
+  unsigned long index;
+  _BitScanReverse64(&index, x);
+  return 63 - index;
+}
+#endif
+
 template<bool Is64bit> class find_bucket_impl;
 
 template<>
 class find_bucket_impl<false> {
  public:
-  static inline constexpr size_t find_bucket(uint32_t x, uint32_t last) {
+  static inline size_t find_bucket(uint32_t x, uint32_t last) {
+#ifdef _MSC_VER
+    return x == last ? 0 : 32 - clz32(x ^ last);
+#else
     return x == last ? 0 : 32 - __builtin_clz(x ^ last);
+#endif
   }
 };
 
 template<>
 class find_bucket_impl<true> {
  public:
-  static inline constexpr size_t find_bucket(uint64_t x, uint64_t last) {
+  static inline size_t find_bucket(uint64_t x, uint64_t last) {
+#ifdef _MSC_VER
+    return x == last ? 0 : 64 - clz64(x ^ last);
+#else
     return x == last ? 0 : 64 - __builtin_clzll(x ^ last);
+#endif
   }
 };
 
