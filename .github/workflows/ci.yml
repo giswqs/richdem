@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [master, main]
   pull_request:
-    branches: [master]
+    branches: [master, main]
 
 jobs:
   build-and-test:
@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     defaults:
@@ -23,15 +23,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Fix symlinks on Windows
-        if: runner.os == 'Windows'
-        shell: cmd
-        working-directory: .
-        run: |
-          cd wrappers\pyrichdem\lib
-          if exist richdem rmdir richdem
-          mklink /J richdem ..\..\..
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
