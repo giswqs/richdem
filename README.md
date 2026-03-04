@@ -1,18 +1,24 @@
-RichDEM
-=======
+RichDEM2
+========
 
-[![ReadTheDocs](https://readthedocs.org/projects/richdem/badge/?version=latest)](https://richdem.readthedocs.io/)
 [![CI](https://github.com/giswqs/richdem2/actions/workflows/ci.yml/badge.svg)](https://github.com/giswqs/richdem2/actions/workflows/ci.yml)
-[![DOI](https://zenodo.org/badge/7469158.svg)](https://zenodo.org/badge/latestdoi/7469158)
+[![PyPI](https://img.shields.io/pypi/v/richdem2.svg)](https://pypi.org/project/richdem2/)
 
-Author: Richard Barnes (rbarnes@umn.edu)
+> **Note:** This is a maintained fork of the original
+> [RichDEM](https://github.com/r-barnes/richdem) project by
+> [Richard Barnes](https://github.com/r-barnes). The original package is no
+> longer actively maintained. This fork updates the build system, modernizes
+> Python packaging, and publishes to PyPI as
+> [`richdem2`](https://pypi.org/project/richdem2/). All credit for the core
+> algorithms and library design goes to the original author.
 
 RichDEM is a set of digital elevation model (DEM) hydrologic analysis tools.
 RichDEM uses parallel processing and state of the art algorithms to quickly
 process even very large DEMs.
 
-RichDEM offers a variety of flow metrics, such as D8 and D∞. It can flood or
-breach depressions. It can calculate flow accumulation, slops, curvatures, &c.
+RichDEM offers a variety of flow metrics, such as D8 and D-infinity. It can
+flood or breach depressions. It can calculate flow accumulation, slopes,
+curvatures, and more.
 
 RichDEM is available as a performant C++ library, a low-dependency Python
 package, and a set of command-line tools.
