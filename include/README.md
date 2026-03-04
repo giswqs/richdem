@@ -90,7 +90,7 @@ use, but citations are encouraged.
 
 General usage of the library can be cited as:
 
-    Barnes, Richard. 2016. RichDEM: Terrain Analysis Software. https://github.com/giswqs/richdem2
+    Barnes, Richard. 2016. RichDEM: Terrain Analysis Software. http://github.com/r-barnes/richdem
 
 An example BibTeX entry is:
 
@@ -98,7 +98,7 @@ An example BibTeX entry is:
       title        = {RichDEM: Terrain Analysis Software},
       author       = {Richard Barnes},
       year         = {2016},
-      url          = {https://github.com/giswqs/richdem2}, 
+      url          = {http://github.com/r-barnes/richdem}, 
     }
 
 This information will be updated as versioned releases become available.

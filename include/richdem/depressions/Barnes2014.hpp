@@ -598,7 +598,7 @@ void pit_mask(const Array2D<elev_t> &elevations, Array2D<uint8_t> &pit_mask){
   ProgressBar progress;
 
   RDLOG_ALG_NAME<<"Pit Mask";
-  RDLOG_CITATION<<"Barnes, R. 2016. RichDEM: Terrain Analysis Software. https://github.com/giswqs/richdem2"; //TODO
+  RDLOG_CITATION<<"Barnes, R. 2016. RichDEM: Terrain Analysis Software. http://github.com/r-barnes/richdem"; //TODO
   RDLOG_CONFIG  <<"topology = "<<TopologyName(topo);
 
   static_assert(topo==Topology::D8 || topo==Topology::D4);
