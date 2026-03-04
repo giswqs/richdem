@@ -96,8 +96,7 @@ def rdShow(
 
     try:
         import matplotlib.pyplot as plt
-        import matplotlib
-    except:
+    except ImportError:
         raise Exception("matplotlib must be installed to use rdShow!")
 
     zoom_vars = [zxmin, zxmax, zymin, zymax]
@@ -111,7 +110,7 @@ def rdShow(
             # from mpl_toolkits.axes_grid1.inset_locator import mark_inset
             from mpl_toolkits.axes_grid1.inset_locator import inset_axes
             from matplotlib.patches import Rectangle
-        except:
+        except ImportError:
             raise Exception("mpl_toolkits.axes_grid1 must be available!")
 
     disparr = np.array(rda, copy=True)
@@ -1031,7 +1030,7 @@ def fill_spill_merge(
     flowdirsw = flowdirs.wrap()
     wtdw = wtd.wrap()
 
-    dhret = depression_hierarchy.fill_spill_merge(demw, labelsw, flowdirsw, deps, wtdw)
+    depression_hierarchy.fill_spill_merge(demw, labelsw, flowdirsw, deps, wtdw)
 
 
 __all__ = (
