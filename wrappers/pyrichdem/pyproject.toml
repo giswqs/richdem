@@ -55,3 +55,16 @@ rd_compare = "richdem.cli:RdCompare"
 
 [tool.setuptools.packages.find]
 include = ["richdem*"]
+
+[tool.cibuildwheel]
+build = "cp310-* cp311-* cp312-* cp313-*"
+skip = "*-musllinux_* *-win32 *_i686"
+
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "arm64"]
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64"]
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]
