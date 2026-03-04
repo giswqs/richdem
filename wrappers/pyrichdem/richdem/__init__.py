@@ -1,6 +1,6 @@
 import copy
 import datetime
-import pkg_resources
+from importlib.metadata import version as _get_version
 from typing import Any, Dict, Final, List, Iterable, Optional, Tuple, Union
 
 import numpy as np
@@ -12,6 +12,8 @@ except ImportError as e:
     raise e
 
 from _richdem import depression_hierarchy, convert_arc_flowdirs_to_richdem_d8, flow_accumulation_from_d8
+
+__version__ = _get_version("richdem")
 
 try:
     import rasterio as rio
@@ -31,7 +33,7 @@ msg_error_dtype: Final[str] = "This datatype is not supported. Please file a bug
 
 def _RichDEMVersion() -> str:
     return "RichDEM (Python {pyver}) (hash={hash}, hashdate={compdate})".format(
-        pyver=pkg_resources.require("richdem")[0].version,
+        pyver=_get_version("richdem"),
         hash=_richdem.rdHash(),
         compdate=_richdem.rdCompileTime(),
     )
@@ -42,7 +44,7 @@ def _AddAnalysis(rda: "rdarray", analysis: str) -> None:
         raise Exception("An rdarray or rd3array is required!")
 
     metastr = "\n{nowdate} | {verstr} | {analysis}".format(
-        nowdate=datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f UTC"),
+        nowdate=datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f UTC"),
         verstr=_RichDEMVersion(),
         analysis=analysis,
     )
