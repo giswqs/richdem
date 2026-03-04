@@ -160,10 +160,22 @@ class bucket_flags {
   }
 
   size_t find_first_non_empty() const {
+#ifdef _MSC_VER
+    unsigned long index;
+    if (sizeof(flags_) == 8) {
+      if (_BitScanForward64(&index, static_cast<uint64_t>(flags_)))
+        return index + 1;
+      return 0;
+    }
+    if (_BitScanForward(&index, static_cast<uint32_t>(flags_)))
+      return index + 1;
+    return 0;
+#else
     if (sizeof(flags_) == 8)
       return __builtin_ffsll(flags_);
 
     return __builtin_ffs(flags_);
+#endif
   }
 
   void swap(bucket_flags& a) {
