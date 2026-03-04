@@ -2,7 +2,7 @@ RichDEM
 =======
 
 [![ReadTheDocs](https://readthedocs.org/projects/richdem/badge/?version=latest)](https://richdem.readthedocs.io/)
-[![Travis](https://travis-ci.org/r-barnes/richdem.svg?branch=master)](https://travis-ci.org/r-barnes/richdem)
+[![CI](https://github.com/giswqs/richdem2/actions/workflows/ci.yml/badge.svg)](https://github.com/giswqs/richdem2/actions/workflows/ci.yml)
 [![DOI](https://zenodo.org/badge/7469158.svg)](https://zenodo.org/badge/latestdoi/7469158)
 
 Author: Richard Barnes (rbarnes@umn.edu)
@@ -34,7 +34,7 @@ development.
 
 General usage of the library can be cited as:
 
-    Barnes, Richard. 2016. RichDEM: Terrain Analysis Software. http://github.com/r-barnes/richdem
+    Barnes, Richard. 2016. RichDEM: Terrain Analysis Software. https://github.com/giswqs/richdem2
 
 An example BibTeX entry is:
 
@@ -42,7 +42,7 @@ An example BibTeX entry is:
       title        = {RichDEM: Terrain Analysis Software},
       author       = {Richard Barnes},
       year         = {2016},
-      url          = {http://github.com/r-barnes/richdem},
+      url          = {https://github.com/giswqs/richdem2},
     }
 
 This information will be updated as versioned releases become available.
@@ -66,7 +66,7 @@ Compilation
 
 To compile, first acquire the source code:
 
-    git clone --recursive https://github.com/r-barnes/richdem
+    git clone --recursive https://github.com/giswqs/richdem2
 
 You will need a C++ compiler, *cmake*, and, optionally, *libgdal*. If you are
 using *conda*, you can install these requirements in a new environment with
@@ -128,8 +128,8 @@ You can compile and run RichDEM from source in Google Colabs by placing these
 commands into a cell and running it.
 
     !pip install pybind11
-    !git clone --recursive https://github.com/r-barnes/richdem.git ghrichdem
-    !cd ghrichdem/wrappers/pyrichdem && pip install .
+    !git clone --recursive https://github.com/giswqs/richdem2.git ghrichdem2
+    !cd ghrichdem2/wrappers/pyrichdem && pip install .
 
 ### From PyPI using pip
 

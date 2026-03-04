@@ -38,7 +38,7 @@ Run docker images:
 
 Get RichDEM:
 
-    git clone https://github.com/r-barnes/richdem.git
+    git clone https://github.com/giswqs/richdem2.git
     mv richdem io
 
 Compile compile compile:
@@ -112,4 +112,4 @@ Uploading packages to PyPI
 Create a Zenodo Release
 ==========================
 
-Go [here](https://github.com/r-barnes/richdem/releases/new) and fill out the form for the new tag.
+Go [here](https://github.com/giswqs/richdem2/releases/new) and fill out the form for the new tag.

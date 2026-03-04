@@ -75,7 +75,7 @@ Further details
 ---------------
 
 For further details on testing, layout files, and so on, please see the source code's
-[README.md](https://github.com/r-barnes/richdem/blob/master/programs/parallel_d8_accum/README.md).
+[README.md](https://github.com/giswqs/richdem2/blob/master/programs/parallel_d8_accum/README.md).
 
 
 
