@@ -1,4 +1,4 @@
 [submodule "richdem"]
 	path = programs/parallel_priority_flood/richdem
-	url = git@github.com:r-barnes/richdem.git
+	url = git@github.com:giswqs/richdem2.git
 	branch = dev

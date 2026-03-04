@@ -1,18 +1,24 @@
-RichDEM
-=======
+RichDEM2
+========
 
-[![ReadTheDocs](https://readthedocs.org/projects/richdem/badge/?version=latest)](https://richdem.readthedocs.io/)
-[![Travis](https://travis-ci.org/r-barnes/richdem.svg?branch=master)](https://travis-ci.org/r-barnes/richdem)
-[![DOI](https://zenodo.org/badge/7469158.svg)](https://zenodo.org/badge/latestdoi/7469158)
+[![CI](https://github.com/giswqs/richdem2/actions/workflows/ci.yml/badge.svg)](https://github.com/giswqs/richdem2/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/richdem2.svg)](https://pypi.org/project/richdem2/)
 
-Author: Richard Barnes (rbarnes@umn.edu)
+> **Note:** This is a maintained fork of the original
+> [RichDEM](https://github.com/r-barnes/richdem) project by
+> [Richard Barnes](https://github.com/r-barnes). The original package is no
+> longer actively maintained. This fork updates the build system, modernizes
+> Python packaging, and publishes to PyPI as
+> [`richdem2`](https://pypi.org/project/richdem2/). All credit for the core
+> algorithms and library design goes to the original author.
 
 RichDEM is a set of digital elevation model (DEM) hydrologic analysis tools.
 RichDEM uses parallel processing and state of the art algorithms to quickly
 process even very large DEMs.
 
-RichDEM offers a variety of flow metrics, such as D8 and D∞. It can flood or
-breach depressions. It can calculate flow accumulation, slops, curvatures, &c.
+RichDEM offers a variety of flow metrics, such as D8 and D-infinity. It can
+flood or breach depressions. It can calculate flow accumulation, slopes,
+curvatures, and more.
 
 RichDEM is available as a performant C++ library, a low-dependency Python
 package, and a set of command-line tools.
@@ -66,7 +72,7 @@ Compilation
 
 To compile, first acquire the source code:
 
-    git clone --recursive https://github.com/r-barnes/richdem
+    git clone --recursive https://github.com/giswqs/richdem2
 
 You will need a C++ compiler, *cmake*, and, optionally, *libgdal*. If you are
 using *conda*, you can install these requirements in a new environment with
@@ -128,14 +134,14 @@ You can compile and run RichDEM from source in Google Colabs by placing these
 commands into a cell and running it.
 
     !pip install pybind11
-    !git clone --recursive https://github.com/r-barnes/richdem.git ghrichdem
-    !cd ghrichdem/wrappers/pyrichdem && pip install .
+    !git clone --recursive https://github.com/giswqs/richdem2.git ghrichdem2
+    !cd ghrichdem2/wrappers/pyrichdem && pip install .
 
 ### From PyPI using pip
 
 Get the package with:
 
-    $ pip install richdem
+    $ pip install richdem2
 
 And use:
 
@@ -154,7 +160,7 @@ As A Command-line Tool
 
 To get the command-line tools, install the Python package with:
 
-    pip3 install richdem
+    pip3 install richdem2
 
 The command-line tools are all named `rd_*`, so typing `rd_` on your command-
 line and hitting tab a few times should give you the full list of what's

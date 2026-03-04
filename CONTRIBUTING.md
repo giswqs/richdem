@@ -69,7 +69,7 @@ Developer Resources
 
 RichDEM code is hosted on GitHub:
 
-* https://github.com/r-barnes/richdem
+* https://github.com/giswqs/richdem2
 
 
 
@@ -78,7 +78,7 @@ Issue Tracking
 
 RichDEM uses Github to track ongoing development and issues:
 
-* https://github.com/r-barnes/richdem/issues
+* https://github.com/giswqs/richdem2/issues
 
 
 
@@ -95,7 +95,7 @@ Contributing
 
 RichDEM uses git pull requests for contributions. To create a pull request, follow these steps:
 
-* Fork the RichDEM project on GitHub - go to https://github.com/r-barnes/richdem and click 'Fork'.
+* Fork the RichDEM project on GitHub - go to https://github.com/giswqs/richdem2 and click 'Fork'.
 * Create a branch on your forked project that contains your work. See 'Coding Standards', below.
 * Use GitHub to open a pull request against the r-barnes RichDEM repository - from your branch on
   GitHub, click 'New Pull Request'.
