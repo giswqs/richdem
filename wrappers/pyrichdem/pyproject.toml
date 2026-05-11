@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "richdem2"
-version = "2.2.0"
+version = "2.2.1"
 description = "High-Performance Terrain Analysis"
 readme = "README.md"
 license = "GPL-3.0-only"

@@ -106,6 +106,7 @@ void SaveGDAL(const Array2D<T> &arr, const std::string &filename, const std::str
   if(poDriver==NULL)
     throw std::runtime_error("Could not open GDAL driver!");
   GDALDataset *fout    = poDriver->Create(filename.c_str(), arr.width(), arr.height(), 1, NativeTypeToGDAL<T>(), papszOptions);
+  CSLDestroy(papszOptions);
   if(fout==NULL)
     throw std::runtime_error("Could not open file '"+filename+"' for GDAL save!");
 
