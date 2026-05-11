@@ -4,13 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "richdem2"
-version = "2.2.1"
-description = "High-Performance Terrain Analysis"
+version = "2.4.0"
+description = "High-Performance Terrain Analysis (maintained fork of RichDEM)"
 readme = "README.md"
 license = "GPL-3.0-only"
 requires-python = ">=3.10"
 authors = [
     {name = "Richard Barnes", email = "rbarnes@umn.edu"},
+]
+maintainers = [
+    {name = "Qiusheng Wu", email = "giswqs@gmail.com"},
 ]
 keywords = ["GIS", "terrain", "hydrology", "geomorphology", "raster"]
 classifiers = [
