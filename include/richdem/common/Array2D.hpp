@@ -48,12 +48,12 @@ namespace richdem {
 
 template<typename> class Array3D;
 
-inline std::map<std::string, std::string> ProcessMetadata(char **metadata){
+inline std::map<std::string, std::string> ProcessMetadata(const char *const *metadata){
   std::map<std::string, std::string> ret;
-  if(metadata==NULL)
+  if(metadata==nullptr)
     return ret;
 
-  for(int metstri=0;metadata[metstri]==NULL;metstri++){
+  for(int metstri=0;metadata[metstri]!=nullptr;metstri++){
     std::string metstr = metadata[metstri];
     const auto equals  = metstr.find("=");
     if(equals==std::string::npos){
@@ -1152,6 +1152,7 @@ class Array2D {
     if(poDriver==NULL)
       throw std::runtime_error("Could not open GDAL driver!");
     GDALDataset *fout    = poDriver->Create(input_filename.c_str(), width(), height(), 1, myGDALType(), papszOptions);
+    CSLDestroy(papszOptions);
     if(fout==NULL)
       throw std::runtime_error("Could not open file '"+input_filename+"' for GDAL save!");
 
