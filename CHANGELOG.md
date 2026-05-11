@@ -1,3 +1,24 @@
+2026-05-11 (2.4.0)
+==================
+
+First release from the [`giswqs/richdem2`](https://github.com/giswqs/richdem2)
+fork. The original `r-barnes/richdem` project is no longer actively maintained;
+this fork picks up from the last upstream release (2.3.1) and continues
+maintenance under the `richdem2` PyPI distribution.
+
+Changes since upstream 2.3.1:
+
+* Rename PyPI distribution from `richdem` to `richdem2` (#4)
+* Modernize Python packaging (PEP 621 `pyproject.toml`) and add GitHub Actions
+  CI (#2)
+* Build platform wheels for PyPI releases via cibuildwheel (#6, #7)
+* Fix MSVC build: replace `__builtin_clz` with `_BitScanReverse` (#8)
+* Fix MSVC build: replace `__builtin_ffs` with `_BitScanForward` (#9)
+* Fix GDAL memory leaks and `ProcessMetadata` loop bug (#10)
+* Refresh `pyrichdem` README to acknowledge the fork; bump version past the
+  upstream 2.3.1 to unblock conda-forge feedstock updates (#11)
+
+
 2022-02-11 (2.3.1)
 ==================
 
