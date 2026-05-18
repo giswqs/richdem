@@ -42,3 +42,38 @@ jobs:
         run: |
           python -c "import richdem; print(richdem.__version__)"
           python -c "import richdem; print(richdem._RichDEMVersion())"
+
+  cmake-msvc-openmp:
+    name: CMake MSVC + OpenMP on windows-latest
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install conda (miniforge) via setup-miniconda
+        # Conda-forge GDAL gives us the same toolchain the feedstock uses,
+        # so the CI build mirrors what downstream packagers actually run.
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          miniforge-version: latest
+          activate-environment: richdem-ci
+          auto-activate-base: false
+
+      - name: Install GDAL
+        run: conda install -y -c conda-forge gdal
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DWITH_TESTS=ON
+
+      - name: Build library, unit tests, and changed apps
+        # Build the two apps touched by this PR so MSVC + /openmp regressions
+        # in their OpenMP loop indices are caught here too. The build itself
+        # is what catches MSVC + OpenMP compile regressions (see #13); the
+        # build-and-test matrix above exercises the runtime side via the
+        # Python wrapper, including on windows-latest.
+        run: cmake --build build --config Release --target richdem richdem_unittests rd_depression_hierarchy.exe rd_fill_spill_merge.exe

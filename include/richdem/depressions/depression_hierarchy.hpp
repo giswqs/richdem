@@ -29,6 +29,17 @@
 
 namespace richdem::dephier {
 
+// User-defined reductions require OpenMP 4.0 / _OPENMP >= 201307. MSVC's
+// OpenMP support is stuck at OpenMP 2.0 (_OPENMP = 200203), so its /openmp
+// builds take the serial branch; we gate on the OpenMP version uniformly
+// rather than singling MSVC out, so any other compiler stuck below 4.0 is
+// handled the same way.
+#if defined(_OPENMP) && _OPENMP >= 201307
+  #define RICHDEM_HAS_OMP_VECTOR_REDUCTION 1
+#else
+  #define RICHDEM_HAS_OMP_VECTOR_REDUCTION 0
+#endif
+
 // We use a 32-bit integer for labeling depressions. This allows for a maximum of
 // 2,147,483,647 depressions. This should be enough for most practical purposes.
 typedef uint32_t dh_label_t;
@@ -305,14 +316,18 @@ GetDepressionHierarchy(const Array2D<elev_t>& dem, Array2D<dh_label_t>& label, A
   ocean_seeds.reserve(dem.width() * dem.height() / 40);
   land_seeds.reserve(dem.width() * dem.height() / 40);
 
-#pragma omp declare reduction(merge : std::vector<flat_c_idx> : omp_out.insert(omp_out.end(), omp_in.begin(), omp_in.end()))
+#if RICHDEM_HAS_OMP_VECTOR_REDUCTION
+  #pragma omp declare reduction(merge : std::vector<flat_c_idx> : omp_out.insert(omp_out.end(), omp_in.begin(), omp_in.end()))
+#endif
 
   RDLOG_PROGRESS << "Adding ocean cells to priority-queue...";
   // We assume the user has already specified a few ocean cells from which to
   // begin looking for depressions. We add all of these ocean cells to the
   // priority queue now.
   uint64_t ocean_cells = 0;
-#pragma omp parallel for collapse(2) reduction(+ : ocean_cells) reduction(merge : ocean_seeds)
+#if RICHDEM_HAS_OMP_VECTOR_REDUCTION
+  #pragma omp parallel for collapse(2) reduction(+ : ocean_cells) reduction(merge : ocean_seeds)
+#endif
   for (int y = 0; y < dem.height(); y++)
     for (int x = 0; x < dem.width(); x++) {
       // Ensure the input only has OCEAN and NO_DEP labels.
@@ -366,7 +381,9 @@ GetDepressionHierarchy(const Array2D<elev_t>& dem, Array2D<dh_label_t>& label, A
   // finds and this shouldn't slow things down too much!
   int pit_cell_count = 0;
   progress.start(dem.size());
-#pragma omp parallel for collapse(2) reduction(+ : pit_cell_count) reduction(merge : land_seeds)
+#if RICHDEM_HAS_OMP_VECTOR_REDUCTION
+  #pragma omp parallel for collapse(2) reduction(+ : pit_cell_count) reduction(merge : land_seeds)
+#endif
   for (int y = 0; y < dem.height(); y++)     // Look at all the cells
     for (int x = 0; x < dem.width(); x++) {  // Yes, all of them
       ++progress;
@@ -834,8 +851,9 @@ void CalculateMarginalVolumes(
     std::vector<double> total_elevations(deps.size(), 0);
     CachingOutletChecker<elev_t> coc;
 
+// MSVC's OpenMP 2.0 only allows signed integer loop variables.
 #pragma omp for
-    for (unsigned int i = 0; i < dem.size(); i++) {
+    for (int64_t i = 0; i < static_cast<int64_t>(dem.size()); i++) {
       ++progress;
       const auto my_elev = dem(i);
       auto clabel        = label(i);
@@ -949,3 +967,5 @@ void LastLayer(Array2D<dh_label_t>& label, const Array2D<elev_t>& dem, const Dep
 }
 
 }  // namespace richdem::dephier
+
+#undef RICHDEM_HAS_OMP_VECTOR_REDUCTION
