@@ -36,9 +36,10 @@ int main(int argc, char** argv) {
   rd::Array2D<rd::flowdir_t> flowdirs(topo.width(), topo.height(), rd::NO_FLOW);  // No cells flow anywhere
 
 // Label the ocean cells. This is a precondition for using
-//`GetDepressionHierarchy()`.
+//`GetDepressionHierarchy()`. MSVC's OpenMP 2.0 only allows signed integer
+// loop variables, so use int64_t rather than unsigned int.
 #pragma omp parallel for
-  for (unsigned int i = 0; i < label.size(); i++) {
+  for (int64_t i = 0; i < static_cast<int64_t>(label.size()); i++) {
     // Ocean Level is assumed to be lower than any other cells (even Death Valley)
     if (topo.isNoData(i) || topo(i) == ocean_level) {
       label(i) = dh::OCEAN;

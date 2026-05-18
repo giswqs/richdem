@@ -72,8 +72,10 @@ int main(int argc, char** argv) {
   rd::BucketFillFromEdges<rd::Topology::D8>(topo, label, ocean_level, dh::OCEAN);
 
 // Make NoData cells also ocean cells. Ocean has no water on it to begin with.
+// MSVC's OpenMP 2.0 only allows signed integer loop variables, so use int64_t
+// rather than unsigned int.
 #pragma omp parallel for
-  for (unsigned int i = 0; i < label.size(); i++) {
+  for (int64_t i = 0; i < static_cast<int64_t>(label.size()); i++) {
     if (topo.isNoData(i) || label(i) == dh::OCEAN) {
       label(i) = dh::OCEAN;
       wtd(i)   = 0;
