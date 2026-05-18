@@ -10,6 +10,7 @@ described in Barnes (TODO).
 */
 #pragma once
 
+#include <richdem/common/constants.hpp>
 #include <richdem/common/logger.hpp>
 #include <richdem/common/Array2D.hpp>
 #include <richdem/common/ProgressBar.hpp>

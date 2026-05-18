@@ -7,6 +7,7 @@
 
 #include <richdem/flats/flat_resolution.hpp>
 #include <richdem/flowmet/dinf_flowdirs.hpp>
+#include <richdem/common/constants.hpp>
 #include <richdem/common/logger.hpp>
 
 namespace richdem {

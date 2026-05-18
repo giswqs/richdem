@@ -27,6 +27,12 @@
 #include <stdexcept>
 #include <string>
 
+// MSVC does not define M_PI by default. Provide a portable fallback so headers
+// that reference M_PI compile on every supported toolchain.
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 namespace richdem {
 
 ///sqrt(2), used to generate distances from a central cell to its neighbours
