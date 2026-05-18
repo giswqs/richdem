@@ -55,15 +55,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Install GDAL via micromamba
+      - name: Install conda (miniforge) via setup-miniconda
         # Conda-forge GDAL gives us the same toolchain the feedstock uses,
         # so the CI build mirrors what downstream packagers actually run.
-        uses: mamba-org/setup-micromamba@v2
+        uses: conda-incubator/setup-miniconda@v4
         with:
-          environment-name: richdem-ci
-          create-args: >-
-            gdal
-          init-shell: bash
+          miniforge-version: latest
+          activate-environment: richdem-ci
+          auto-activate-base: false
+
+      - name: Install GDAL
+        run: conda install -y -c conda-forge gdal
 
       - name: Configure CMake
         run: cmake -S . -B build -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DWITH_TESTS=ON
