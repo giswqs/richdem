@@ -1,3 +1,13 @@
+2026-05-18 (2.4.2)
+==================
+
+* Guard OpenMP user-defined reductions for MSVC and add CMake-based CI so
+  configure-time regressions on Linux/macOS/Windows are caught early (#17)
+* Bump GitHub Actions (`checkout`, `setup-python`, `upload-artifact`,
+  `download-artifact`, `cibuildwheel`, `gh-action-pypi-publish`) to their
+  latest major versions (#16)
+
+
 2026-05-18 (2.4.1)
 ==================
 
