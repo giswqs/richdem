@@ -72,11 +72,8 @@ jobs:
 
       - name: Build library, unit tests, and changed apps
         # Build the two apps touched by this PR so MSVC + /openmp regressions
-        # in their OpenMP loop indices are caught here too.
+        # in their OpenMP loop indices are caught here too. The build itself
+        # is what catches MSVC + OpenMP compile regressions (see #13); the
+        # build-and-test matrix above exercises the runtime side via the
+        # Python wrapper, including on windows-latest.
         run: cmake --build build --config Release --target richdem richdem_unittests rd_depression_hierarchy.exe rd_fill_spill_merge.exe
-
-      - name: Run unit tests
-        # The four "Checking ..." cases load test rasters from paths that
-        # aren't laid out for the CMake build tree; skip them here. The build
-        # itself is what catches MSVC + OpenMP compile regressions (see #13).
-        run: build/Release/richdem_unittests.exe --test-case-exclude="Checking flow accumulation,Checking depression filling,Checking depression breaching"
