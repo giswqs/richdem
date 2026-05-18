@@ -1,3 +1,12 @@
+2026-05-18 (2.4.1)
+==================
+
+* Fix MSVC build: define `M_PI` fallback in `constants.hpp` so the D-infinity
+  and terrain-attribute headers compile under MSVC (#13, #14)
+* Add `windows-latest` to the GitHub Actions CI matrix to catch MSVC
+  regressions before they reach the conda-forge feedstock (#14)
+
+
 2026-05-11 (2.4.0)
 ==================
 
