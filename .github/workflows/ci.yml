@@ -47,18 +47,34 @@ jobs:
     name: CMake MSVC + OpenMP on windows-latest
     runs-on: windows-latest
 
+    defaults:
+      run:
+        shell: bash -el {0}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Configure CMake
-        run: cmake -S . -B build -DUSE_GDAL=OFF -DWITH_TESTS=ON
+      - name: Install GDAL via micromamba
+        # Conda-forge GDAL gives us the same toolchain the feedstock uses,
+        # so the CI build mirrors what downstream packagers actually run.
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: richdem-ci
+          create-args: >-
+            gdal
+          init-shell: bash
 
-      - name: Build library and unit tests
-        run: cmake --build build --config Release --target richdem richdem_unittests
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DWITH_TESTS=ON
+
+      - name: Build library, unit tests, and changed apps
+        # Build the two apps touched by this PR so MSVC + /openmp regressions
+        # in their OpenMP loop indices are caught here too.
+        run: cmake --build build --config Release --target richdem richdem_unittests rd_depression_hierarchy.exe rd_fill_spill_merge.exe
 
       - name: Run unit tests
-        # The four "Checking ..." cases need GDAL to load test rasters; we
-        # build with -DUSE_GDAL=OFF so we skip them. The build itself is what
-        # catches MSVC + OpenMP compile regressions (see #13).
+        # The four "Checking ..." cases load test rasters from paths that
+        # aren't laid out for the CMake build tree; skip them here. The build
+        # itself is what catches MSVC + OpenMP compile regressions (see #13).
         run: build/Release/richdem_unittests.exe --test-case-exclude="Checking flow accumulation,Checking depression filling,Checking depression breaching"

@@ -29,11 +29,12 @@
 
 namespace richdem::dephier {
 
-// MSVC's OpenMP support is stuck at OpenMP 2.0, which does not allow
-// user-defined reductions (those require OpenMP 4.0 / _OPENMP >= 201307).
-// When building with MSVC + /openmp we therefore have to skip the
-// std::vector reduction pragmas and let those loops run serially.
-#if defined(_OPENMP) && (!defined(_MSC_VER) || _OPENMP >= 201307)
+// User-defined reductions require OpenMP 4.0 / _OPENMP >= 201307. MSVC's
+// OpenMP support is stuck at OpenMP 2.0 (_OPENMP = 200203), so its /openmp
+// builds take the serial branch; we gate on the OpenMP version uniformly
+// rather than singling MSVC out, so any other compiler stuck below 4.0 is
+// handled the same way.
+#if defined(_OPENMP) && _OPENMP >= 201307
   #define RICHDEM_HAS_OMP_VECTOR_REDUCTION 1
 #else
   #define RICHDEM_HAS_OMP_VECTOR_REDUCTION 0
