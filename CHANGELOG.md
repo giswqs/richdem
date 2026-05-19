@@ -1,3 +1,15 @@
+2026-05-19 (2.4.3)
+==================
+
+* Fix Windows link errors (`generate_perlin_terrain`, `uniform_rand_real`)
+  when conda-forge (or any consumer) builds from the GitHub source tarball.
+  The wrapper used to rely on a `lib/richdem` symlink for its `.cpp` glob;
+  the symlink does not survive tarball extraction on Windows, so `setup.py`
+  now resolves the richdem source tree relative to the wrapper directory
+  (preferring `../..` and falling back to `lib/richdem` for sdist installs)
+  (#19)
+
+
 2026-05-18 (2.4.2)
 ==================
 
