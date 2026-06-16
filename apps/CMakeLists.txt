@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.9)
+cmake_minimum_required (VERSION 3.13)
 
 add_executable(rd_compare.exe                 rd_compare.cpp)
 add_executable(rd_d8_flowdirs.exe             rd_d8_flowdirs.cpp)

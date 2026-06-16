@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.9)
+cmake_minimum_required (VERSION 3.13)
 
 project(richdem
   VERSION 2.2.12
@@ -11,11 +11,11 @@ cmake_policy(SET CMP0077 NEW)
 find_package(GDAL)
 find_package(OpenMP REQUIRED)
 find_package(MPI)
-find_package(Boost COMPONENTS serialization)
+find_package(Boost CONFIG COMPONENTS serialization)
 
 set(CMAKE_MACOSX_RPATH 1)
 set(BUILD_SHARED_LIBS ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 add_subdirectory(apps)
